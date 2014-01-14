@@ -1,4 +1,4 @@
-smartfilters
+Smart Filters
 ============
 
-Smart Filters plugin for Shop-Script 5
+AJAX Filters plugin for Shop-Script 5
