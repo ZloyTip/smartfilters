@@ -5,7 +5,7 @@ return array(
     'description' => 'Плагин фильтрации в категориях',
 	'author'=>'Hardman',
     'vendor'=>'972539',
-    'version'=>'0.0.6',
+    'version'=>'0.0.7',
     'img'=>'img/smartfilters.gif',
 	'handlers'=> array(
         'frontend_category' => 'frontendCategory'
