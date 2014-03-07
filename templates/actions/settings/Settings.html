@@ -22,6 +22,7 @@
     <p class="gray"><i class="icon16 exclamation"></i> Для автоматической отправки данных формы необходимо подключить библиотеку jQuery.</p>
     <p class="gray"><i class="icon16 exclamation"></i> Для вывода в произвольном месте шаблона <b>отключите</b> настройку "Включить фильтрацию" и добавьте <b><code>{ldelim}shopSmartfiltersPlugin::get($category.id){rdelim}</code></b> в нужное место шаблона <b>category.html</b>.</p>
     <form id="sf-settings" method="post" action="?plugin=smartfilters&action=save">
+	{$wa->csrf()}
     <div class="field">
         <div class="name">Включить фильтрацию</div>
         <div class="value no-shift">
