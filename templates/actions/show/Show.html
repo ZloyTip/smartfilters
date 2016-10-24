@@ -1,3 +1,4 @@
+{strip}
 <style type="text/css">
     .smartfilter_disabled {
         color:#888;
@@ -100,7 +101,7 @@
                 var f = $(this);
 
                 $.get(f.attr('action'), f.serialize(), function (response) {
-                    $('#main').html(response);
+                    $('#smartfiltercontent').html(response);
                 });
             });
 
@@ -168,3 +169,4 @@
         });
     </script>
 {/if}
+{/strip}

@@ -41,10 +41,13 @@
     <div class="field">
         <div class="name">Шаблон фильтра</div>
         <div class="value">
-            <p>Настраивается в теме дизайна.</p>
+            <p>Для настройки внешнего вида блока фильтра добавьте файл <code class="highlighted">{shopSmartfiltersPlugin::THEME_FILE}</code>
+                в используемую вами тему дизайна. Файл <code>{shopSmartfiltersPlugin::THEME_FILE}</code> заменит стандартный шаблон плагина.
+                Скачать оригинальный шаблон вы можете по <a href="?action=download&plugin=smartfilters" target="_blank">ссылке</a>.</p>
             {if $modified_template}
-                <p>При обновлении пллагин пытался перенести изменения, сделанные вами вручную во все активные темы дизайна.
-                    Если этого по какой-то причине не произошло, вы можете скачать изменённую версию по ссылке.</p>
+                <p>При обновлении пллагин пытался перенести изменения, сделанные вами вручную, во все активные темы дизайна.
+                    Если этого по какой-то причине не произошло, вы можете скачать изменённую версию по
+                    <a href="?action=download&modified=1&plugin=smartfilters" target="_blank">ссылке</a>.</p>
             {/if}
         </div>
     </div>
@@ -57,36 +60,3 @@
 
     </form>
 </div>
-
-<script type="text/javascript">
-    $(function () {
-        var c = CodeMirror.fromTextArea(document.getElementById('sf-template'), {
-            mode: "text/html",
-            tabMode: "indent",
-            height: "dynamic",
-            lineWrapping: true
-        });
-        $("#sf-template").change(function() {
-            c.setValue($(this).val())
-        });
-        /*$("#sf-settings").submit(function () {
-            var f = $(this);
-            $.post(f.attr('action'), f.serialize(), function (response) {
-                if(response.status == 'ok') {
-                    $('#wa-design-button').removeClass('red').addClass('green');
-                    $("#wa-editor-status-fail").hide()
-                    $("#wa-editor-status-ok span").html(response.data.message);
-                    $("#wa-editor-status-ok").fadeIn('slow', function () {
-                        $(this).fadeOut(1000);
-                    });
-                } else {
-                    $('#wa-design-button').removeClass('green').addClass('red');
-                    $("#wa-editor-status-ok").hide();
-                    $("#wa-editor-status-fail span").html(response.errors.join(', '));
-                    $("#wa-editor-status-fail").fadeIn('slow');
-                }
-            }, "json")
-            return false;
-        });*/
-    });
-</script>
