@@ -1,7 +1,8 @@
 <?php
 
 
-class shopSmartfiltersPluginShowAction extends waViewAction {
+class shopSmartfiltersPluginShowAction extends waViewAction
+{
 
     public function setFilters($filters)
     {
@@ -10,15 +11,12 @@ class shopSmartfiltersPluginShowAction extends waViewAction {
 
     public function execute()
     {
-        /**
-         * Не находит шаблон, если вызывать без хука.
-         * Наверное, баг.
-         */
-        $template_dir = dirname(__FILE__).'/../../templates/actions/show/';
-        if(!file_exists($template_dir.'Show.html')) {
-            $this->setTemplate($template_dir.'Show.default.html');
+        if ($this->getTheme()->getFile(shopSmartfiltersPlugin::THEME_FILE)) {
+            $this->setThemeTemplate(shopSmartfiltersPlugin::THEME_FILE);
         } else {
-            $this->setTemplate($template_dir.'Show.html');
+            $template_dir = dirname(__FILE__) . '/../../templates/actions/show/';
+            $this->setTemplate($template_dir . 'Show.html');
         }
     }
+    //
 }

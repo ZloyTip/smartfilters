@@ -1,0 +1,68 @@
+<div class="field">
+    <div class="name">Smart Filters</div>
+    <div class="value no-shift">
+        <label>
+            <input type="checkbox" name="allow_smartfilters" value="1" id="smartfilters-category-allow-filter" {if $allow_smartfilters}checked{/if}> Разрешить фильтрацию товаров
+            <span class="hint">Фильтрация товаров позволит покупателям подбирать товары внутри этой категории по значениям характеристик, например, по цвету, производителю, цене</span>
+        </label><br><br>
+        <label>
+            <input type="checkbox" name="smartfilters_descendants" value="1"> Применить ко вложенным категориям
+        </label>
+        <div class="block" id="smartfilters-category-filter" {if !$allow_smartfilters}style="display:none;"{/if}>
+            <ul class="menu-v compact small">
+                <li>
+                    <a href="#" class="inline-link check" style="display: inline"><b><i>Отметить все</i></b></a> /
+                    <a href="#" class="inline-link check uncheck" style="display: inline"><b><i>Снять отметки</i></b></a>
+                </li>
+                {foreach $smartfilters as $feature}
+                    <li>
+                        <i class="icon16 sort"></i>
+                        <label>
+                            <input type="checkbox" name="smartfilters[]" value="{$feature.id}"{if !empty($feature.checked) || ($feature.id == 'price' && !$allow_smartfilters)} checked{/if}>
+                            <input type="text" name="smartfilters_name[]" value="{ifempty($smartfilters_name[$feature.id])|escape}" placeholder="{$feature.name|escape}">
+                        </label>
+                    </li>
+                {/foreach}
+            </ul>
+        </div>
+    </div>
+
+</div>
+<script>
+$(function () {
+
+    $('#smartfilters-category-allow-filter').click(function() {
+        if (this.checked) {
+            $('#smartfilters-category-filter').show();
+        } else {
+            $('#smartfilters-category-filter').hide();
+        }
+    });
+    var scf = $('#smartfilters-category-filter');
+    scf.sortable({
+        distance: 5,
+        opacity: 0.75,
+        items: 'li',
+        handle: '.sort',
+        cursor: 'move',
+        tolerance: 'pointer'
+    })
+    .find(':checkbox').click(function(){
+        var name = $(this).next();
+        if($(this).is(':checked')) {
+            name.prop('name', 'smartfilters_name[]')
+                .prop('disabled', false)
+        } else {
+            name.prop('name', '')
+                .prop('disabled', true);
+        }
+    });
+
+    $('.check', scf).click(function(e){
+        e.preventDefault();
+        $(this).closest('ul').find(':checkbox').prop('checked',!$(this).hasClass('uncheck'));
+    })
+
+
+})
+</script>

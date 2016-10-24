@@ -1,0 +1,170 @@
+<style type="text/css">
+    .smartfilter_disabled {
+        color:#888;
+    }
+    .smartfilter_loader {
+        width:100%;
+        height:200px;
+        background:url({$wa_url}wa-apps/shop/plugins/smartfilters/img/loader.gif) 50% 50% no-repeat;
+    }
+    #smartfilter label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    #smartfilter h5 {
+        margin:10px 0 5px;
+    }
+    #smartfilter .slider { background: transparent; }
+    #smartfilter .ui-slider { margin: 10px 15px 10px 8px; display: block; }
+    #smartfilter .ui-slider-horizontal { height: 2px; border: none; }
+    #smartfilter .ui-slider-horizontal .ui-slider-handle,
+    #smartfilter .ui-slider-horizontal .ui-slider-handle.ui-state-focus { top: -0.55em; margin-left: -0.4em; height: 1.1em; width: 1.1em; border: none; box-shadow: 0 1px 2px rgba(0,0,0,0.15); border-radius: 50%; z-index: 0; }
+    #smartfilter .ui-slider-horizontal .ui-slider-handle.ui-state-hover { border-color: #999; box-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+    #smartfilter .ui-slider-horizontal.ui-widget-content { background: #bbb; }
+    #smartfilter .ui-slider-horizontal .ui-widget-header { background: #0a0; height: 4px; position: relative; top: -1px; z-index: 0; }
+    #smartfilter .ui-widget-content .ui-state-default { border: 1px solid #ccc; background: #f7f7f7; }
+</style>
+
+{if !empty($smartfilters)}
+    {if !waRequest::isXMLHttpRequest()}
+    <script>
+    if (!jQuery.ui) {
+        document.write(unescape('%3Clink href="{$wa_static_url}wa-content/css/jquery-ui/base/jquery.ui.slider.css" rel="stylesheet" type="text/css"%3E'))
+        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.core.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
+        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.widget.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
+        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.mouse.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
+    }
+    </script>
+    <script>
+    if(!jQuery.ui.slider) {
+        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.slider.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
+    }
+    </script>
+    {/if}
+    <div class="filters" id="smartfilter">
+        <form method="get" action="{$wa->currentUrl(0,1)}">
+            {foreach $smartfilters as $fid => $filter}
+                <div class="filter-param">
+                    {if $fid == 'price'}
+                        {$c = $wa->shop->currency(true)}
+                        <h5>Цена</h5>
+                        <div class="slider">
+                            от <input type="text" class="min" name="price_min" {if $wa->get('price_min')}value="{(int)$wa->get('price_min')}"{/if} placeholder="{floor($filter.min)}">
+                            до <input type="text" class="max" name="price_max" {if $wa->get('price_max')}value="{(int)$wa->get('price_max')}"{/if} placeholder="{ceil($filter.max)}"> {$c.sign}
+                        </div>
+                    {else}
+                        <h5>{$filter.name|escape}</h5>
+                        {if $filter.type == 'boolean'}
+                            <label><input type="radio" name="{$filter.code}"{if $wa->get($filter.code)} checked{/if} value="1"> Да</label>
+                            <label><input type="radio" name="{$filter.code}"{if $wa->get($filter.code) === '0'} checked{/if} value="0"> Нет</label>
+                            <label><input type="radio" name="{$filter.code}"{if $wa->get($filter.code, '') === ''} checked{/if} value=""> Неважно</label>
+                        {elseif isset($filter.min)}
+                            {$_v = $wa->get($filter.code)}
+                            <div class="slider">
+                                от <input type="text" class="min" name="{$filter.code}[min]" placeholder="{$filter.min}" {if !empty($_v.min)}value="{$_v.min}"{/if}>
+                                до <input type="text" class="max" name="{$filter.code}[max]" placeholder="{$filter.max}" {if !empty($_v.max)}value="{$_v.max}"{/if}>
+                                {if !empty($filter.unit)}
+                                    {$filter.unit.title}
+                                    {if $filter.unit.value != $filter.base_unit.value}<input type="hidden" name="{$filter.code}[unit]" value="{$filter.unit.value}">{/if}
+                                {/if}
+                            </div>
+                        {else}
+                            {foreach $filter.values as $v_id => $v}
+                                <label>
+                                    <input type="checkbox" name="{$filter.code}[]" {if in_array($v_id, (array)$wa->get($filter.code, array()))}checked{/if} value="{$v_id}"{if !empty($filter.disabled[$v_id])} disabled{/if}> {$v}
+                                </label>
+                            {/foreach}
+                        {/if}
+                    {/if}
+                </div>
+            {/foreach}
+            {if $wa->get('sort')}<input type="hidden" name="sort" value="{$wa->get('sort')|escape}">{/if}
+            {if $wa->get('order')}<input type="hidden" name="order" value="{$wa->get('order')|escape}">{/if}
+            <input type="submit" value="Поиск">
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        $(function(){
+            var filter_change_timeoutId,
+                sf = $('#smartfilter');
+
+            $('input,select', sf).change(function() {
+                if(filter_change_timeoutId) clearTimeout(filter_change_timeoutId);
+                filter_change_timeoutId = setTimeout('$("#smartfilter form").submit();', 500)
+            });
+
+            $('form', sf).submit(function (e) {
+                e.preventDefault();
+                $('#product-list').html('<div class="smartfilter_loader"/>');
+                var f = $(this);
+
+                $.get(f.attr('action'), f.serialize(), function (response) {
+                    $('#main').html(response);
+                });
+            });
+
+            $('input[type="submit"]', sf).hide();
+
+            $('.slider', sf).each(function () {
+                if (!$(this).find('.filter-slider').length) {
+                    $(this).append('<div class="filter-slider"></div>');
+                } else {
+                    return;
+                }
+                var min = $(this).find('.min');
+                var max = $(this).find('.max');
+                var min_value = parseFloat(min.attr('placeholder'));
+                var max_value = parseFloat(max.attr('placeholder'));
+                var step = 1;
+                var slider = $(this).find('.filter-slider');
+                if (slider.data('step')) {
+                    step = parseFloat(slider.data('step'));
+                } else {
+                    var diff = max_value - min_value;
+                    if (Math.round(min_value) != min_value || Math.round(max_value) != max_value) {
+                        step = diff / 10;
+                        var tmp = 0;
+                        while (step < 1) {
+                            step *= 10;
+                            tmp += 1;
+                        }
+                        step = Math.pow(10, -tmp);
+                        tmp = Math.round(100000 * Math.abs(Math.round(min_value) - min_value)) / 100000;
+                        if (tmp && tmp < step) {
+                            step = tmp;
+                        }
+                        tmp = Math.round(100000 * Math.abs(Math.round(max_value) - max_value)) / 100000;
+                        if (tmp && tmp < step) {
+                            step = tmp;
+                        }
+                    }
+                }
+                slider.slider({
+                    range: true,
+                    min: parseFloat(min.attr('placeholder')),
+                    max: parseFloat(max.attr('placeholder')),
+                    step: step,
+                    values: [parseFloat(min.val().length ? min.val() : min.attr('placeholder')),
+                        parseFloat(max.val().length ? max.val() : max.attr('placeholder'))],
+                    slide: function( event, ui ) {
+                        var v = ui.values[0] == $(this).slider('option', 'min') ? '' : ui.values[0];
+                        min.val(v);
+                        v = ui.values[1] == $(this).slider('option', 'max') ? '' : ui.values[1];
+                        max.val(v);
+                    },
+                    stop: function (event, ui) {
+                        min.change();
+                    }
+                });
+                min.add(max).change(function () {
+                    var v_min =  min.val() === '' ? slider.slider('option', 'min') : parseFloat(min.val());
+                    var v_max = max.val() === '' ? slider.slider('option', 'max') : parseFloat(max.val());
+                    if (v_max >= v_min) {
+                        slider.slider('option', 'values', [v_min, v_max]);
+                    }
+                });
+            });
+        });
+    </script>
+{/if}
