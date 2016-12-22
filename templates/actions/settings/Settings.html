@@ -8,7 +8,7 @@
     <h1>Smart Filters</h1>
     <p>Для отображения фильтра во всех категориях настройте используемую тему (<a href="#" class="inline-link" onclick="$('#tutorial').toggleClass('opened'); return false;">инструкция</a>) и включите плагин.</p>
     <div id="tutorial" class="block double-padded" style="border: 1px solid #ccc;display: none;margin-bottom: 20px">
-        <p>Для установки плагина оберните <code class="bold italic">{ldelim}$content{rdelim}</code> в <code class="bold italic">&lt;div <span class="red">id="smartfiltercontent"</span>&gt;...&lt;/div&gt;</code> в файле <code class="bold italic">content.html</code> используемой темы.</p>
+        <p>Для установки плагина оберните <code class="bold italic">{ldelim}$content{rdelim}</code> в <code class="bold italic">&lt;div <span class="red">id="smartfiltercontent"</span>&gt;...&lt;/div&gt;</code> в файле <code class="bold italic">main.html</code> или <code class="bold italic">content.html</code> используемой темы.</p>
         <p>Пример для темы <span class="bold">CUSTOM</span>:<br><br>
             <img src="{$wa_url}wa-apps/shop/plugins/smartfilters/img/example.png">
         </p>
@@ -27,6 +27,7 @@
             </select>
         </div>
     </div>
+
     <div class="field">
         <div class="name">Сортировка значений</div>
         <div class="value no-shift">
@@ -45,12 +46,26 @@
                 в используемую вами тему дизайна. Файл <code>{shopSmartfiltersPlugin::THEME_FILE}</code> заменит стандартный шаблон плагина.
                 Скачать оригинальный шаблон вы можете по <a href="?action=download&plugin=smartfilters" target="_blank">ссылке</a>.</p>
             {if $modified_template}
-                <p>При обновлении пллагин пытался перенести изменения, сделанные вами вручную, во все активные темы дизайна.
+                <p>При обновлении плагин пытался перенести изменения, сделанные вами вручную, во все активные темы дизайна.
                     Если этого по какой-то причине не произошло, вы можете скачать изменённую версию по
                     <a href="?action=download&modified=1&plugin=smartfilters" target="_blank">ссылке</a>.</p>
             {/if}
         </div>
     </div>
+
+    <div class="field">
+        <div class="name">Подключить jQuery UI slider</div>
+        <div class="value no-shift">
+            <select name="ui_slider">
+                <option value="1">нет</option>
+                <option value="0"{if !$ui_slider} selected{/if}>да</option>
+            </select>
+            <p class="hint">
+                Библиотека нужна для работы слайдеров в стандартном шаблоне. Подлючается через хук <strong>frontend_head</strong>.
+            </p>
+        </div>
+    </div>
+
     <div class="field">
         <div class="value submit">
             <input type="submit" class="button green" value="Сохранить">

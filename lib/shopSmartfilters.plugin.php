@@ -4,7 +4,30 @@ class shopSmartfiltersPlugin extends shopPlugin {
 
     const THEME_FILE = 'plugin.smartfilters.html';
 
-    public function getFiltersForCategory($category_id) {
+    /************
+     * Хелперы
+     ************/
+
+    /**
+     * Возвращает HTML с фильтром для категории.
+     *
+     * @param $category_id
+     * @return string
+     */
+    public static function get($category_id)
+    {
+        if(wa('shop')->getPlugin('smartfilters')->getSettings('enabled') !== '1')
+            return self::display($category_id);
+        return '';
+    }
+
+    /**
+     * Возвращает массив фильтров для категории.
+     *
+     * @param $category_id
+     * @return array
+     */
+    public static function getFiltersForCategory($category_id) {
         if ($category_id) {
             $feature_model = new shopSmartfiltersPluginFeatureModel();
             return $feature_model->getByCategoryId($category_id);
@@ -13,6 +36,30 @@ class shopSmartfiltersPlugin extends shopPlugin {
         return array();
     }
 
+
+    /**********************
+     * Обработчики хуков
+     **********************/
+
+
+    /**
+     * @return string
+     */
+    public function frontendHead()
+    {
+        if($this->getSettings('enabled') && !$this->getSettings('ui_slider') && (waRequest::param('action') == 'category')) {
+            $view = wa()->getView();
+            return $view->fetch($this->path.'/templates/hooks/frontendHead.html');
+
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $category
+     * @return string
+     */
     public function frontendCategory($category)
     {
         if($this->getSettings('enabled') === '1')
@@ -20,6 +67,10 @@ class shopSmartfiltersPlugin extends shopPlugin {
         return '';
     }
 
+    /**
+     * @param $settings
+     * @return string
+     */
     public function backendCategoryDialog($settings)
     {
 
@@ -61,6 +112,9 @@ class shopSmartfiltersPlugin extends shopPlugin {
         return $view->fetch($this->path.'/templates/hooks/backendCategoryDialog.html');
     }
 
+    /**
+     * @param $data
+     */
     public function categorySave(&$data)
     {
         if(!empty($data['id'])) {
@@ -95,13 +149,15 @@ class shopSmartfiltersPlugin extends shopPlugin {
         }
     }
 
-    public static function get($category_id)
-    {
-        if(wa('shop')->getPlugin('smartfilters')->getSettings('enabled') !== '1')
-            return self::display($category_id);
-        return '';
-    }
 
+    /************
+     * Всякое
+     ************/
+
+    /**
+     * @param $category_id
+     * @return string
+     */
     private static function display($category_id)
     {
         if ($category_id) {

@@ -9,6 +9,7 @@ class shopSmartfiltersPluginSettingsAction extends waViewAction {
          */
         $plugin = wa('shop')->getPlugin( 'smartfilters');
         $enabled             = $plugin->getSettings('enabled');
+        $ui_slider           = $plugin->getSettings('ui_slider');
         $order               = $plugin->getSettings('order');
 
         $features_model = new shopFeatureModel();
@@ -21,5 +22,6 @@ class shopSmartfiltersPluginSettingsAction extends waViewAction {
         $this->view->assign('enabled', $enabled);;
         $this->view->assign('features', $features);
         $this->view->assign('order', $order);
+        $this->view->assign('ui_slider', $ui_slider);
     }
 }

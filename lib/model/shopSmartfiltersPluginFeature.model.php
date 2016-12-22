@@ -47,7 +47,7 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
         }
 
         static $order;
-        if(!$order) {
+        if($order === null) {
             $order = wa('shop')->getPlugin('smartfilters')->getSettings('order');
         }
 

@@ -1,0 +1,15 @@
+{strip}
+<script>
+  if (!jQuery.ui) {
+      document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.core.min.js?v{$wa->version(true)}"%3E%3C/script%3E'));
+      document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.widget.min.js?v{$wa->version(true)}"%3E%3C/script%3E'));
+      document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.mouse.min.js?v{$wa->version(true)}"%3E%3C/script%3E'));
+  }
+</script>
+<script>
+if(!jQuery.ui.slider) {
+    document.write(unescape('%3Clink href="{$wa_static_url}wa-content/css/jquery-ui/base/jquery.ui.slider.css?v{$wa->version(true)}" rel="stylesheet" type="text/css"%3E'));
+    document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.slider.min.js?v{$wa->version(true)}"%3E%3C/script%3E'));
+}
+</script>
+{/strip}

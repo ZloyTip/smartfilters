@@ -27,21 +27,6 @@
 </style>
 
 {if !empty($smartfilters)}
-    {if !waRequest::isXMLHttpRequest()}
-    <script>
-    if (!jQuery.ui) {
-        document.write(unescape('%3Clink href="{$wa_static_url}wa-content/css/jquery-ui/base/jquery.ui.slider.css" rel="stylesheet" type="text/css"%3E'))
-        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.core.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
-        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.widget.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
-        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.mouse.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
-    }
-    </script>
-    <script>
-    if(!jQuery.ui.slider) {
-        document.write(unescape('%3Cscript type="text/javascript" src="{$wa_static_url}wa-content/js/jquery-ui/jquery.ui.slider.min.js?v{$wa->version(true)}"%3E%3C/script%3E'))
-    }
-    </script>
-    {/if}
     <div class="filters" id="smartfilter">
         <form method="get" action="{$wa->currentUrl(0,1)}">
             {foreach $smartfilters as $fid => $filter}
@@ -85,87 +70,12 @@
         </form>
     </div>
 
+    <script type="text/javascript" src="{$wa_url}wa-apps/shop/plugins/smartfilters/js/category.min.js?v1.0.0"></script>
     <script type="text/javascript">
         $(function(){
-            var filter_change_timeoutId,
-                sf = $('#smartfilter');
-
-            $('input,select', sf).change(function() {
-                if(filter_change_timeoutId) clearTimeout(filter_change_timeoutId);
-                filter_change_timeoutId = setTimeout('$("#smartfilter form").submit();', 500)
-            });
-
-            $('form', sf).submit(function (e) {
-                e.preventDefault();
-                $('#product-list').html('<div class="smartfilter_loader"/>');
-                var f = $(this);
-
-                $.get(f.attr('action'), f.serialize(), function (response) {
-                    $('#smartfiltercontent').html(response);
-                });
-            });
-
-            $('input[type="submit"]', sf).hide();
-
-            $('.slider', sf).each(function () {
-                if (!$(this).find('.filter-slider').length) {
-                    $(this).append('<div class="filter-slider"></div>');
-                } else {
-                    return;
-                }
-                var min = $(this).find('.min');
-                var max = $(this).find('.max');
-                var min_value = parseFloat(min.attr('placeholder'));
-                var max_value = parseFloat(max.attr('placeholder'));
-                var step = 1;
-                var slider = $(this).find('.filter-slider');
-                if (slider.data('step')) {
-                    step = parseFloat(slider.data('step'));
-                } else {
-                    var diff = max_value - min_value;
-                    if (Math.round(min_value) != min_value || Math.round(max_value) != max_value) {
-                        step = diff / 10;
-                        var tmp = 0;
-                        while (step < 1) {
-                            step *= 10;
-                            tmp += 1;
-                        }
-                        step = Math.pow(10, -tmp);
-                        tmp = Math.round(100000 * Math.abs(Math.round(min_value) - min_value)) / 100000;
-                        if (tmp && tmp < step) {
-                            step = tmp;
-                        }
-                        tmp = Math.round(100000 * Math.abs(Math.round(max_value) - max_value)) / 100000;
-                        if (tmp && tmp < step) {
-                            step = tmp;
-                        }
-                    }
-                }
-                slider.slider({
-                    range: true,
-                    min: parseFloat(min.attr('placeholder')),
-                    max: parseFloat(max.attr('placeholder')),
-                    step: step,
-                    values: [parseFloat(min.val().length ? min.val() : min.attr('placeholder')),
-                        parseFloat(max.val().length ? max.val() : max.attr('placeholder'))],
-                    slide: function( event, ui ) {
-                        var v = ui.values[0] == $(this).slider('option', 'min') ? '' : ui.values[0];
-                        min.val(v);
-                        v = ui.values[1] == $(this).slider('option', 'max') ? '' : ui.values[1];
-                        max.val(v);
-                    },
-                    stop: function (event, ui) {
-                        min.change();
-                    }
-                });
-                min.add(max).change(function () {
-                    var v_min =  min.val() === '' ? slider.slider('option', 'min') : parseFloat(min.val());
-                    var v_max = max.val() === '' ? slider.slider('option', 'max') : parseFloat(max.val());
-                    if (v_max >= v_min) {
-                        slider.slider('option', 'values', [v_min, v_max]);
-                    }
-                });
-            });
+            $('#smartfilter').smartfilters({
+                content_selector:'#smartfiltercontent'
+            })
         });
     </script>
 {/if}
