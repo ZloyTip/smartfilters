@@ -1,0 +1,16 @@
+{strip}
+{if $filters}
+<script type="text/x-jquery-smartfilters" data-smartfilters-data>{json_encode($filters)}</script>
+<script>
+$(function(){
+    var f = $('[data-smartfilters-data]').text();
+    f = $.parseJSON(f);
+    $.smartfiltersTheme(f, {
+        hideDisabled : {if !empty($smartfilters.hideDisabled)}true{else}false{/if},
+        parentLabelSelector: '{ifempty($smartfilters.parentLabelSelector, 'label')}',
+        parentParamSelector: '{ifempty($smartfilters.parentParamSelector, '.filter-param,p')}'
+    });
+})
+</script>
+{/if}
+{/strip}

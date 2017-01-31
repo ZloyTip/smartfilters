@@ -4,6 +4,10 @@ class shopSmartfiltersPlugin extends shopPlugin {
 
     const THEME_FILE = 'plugin.smartfilters.html';
 
+    const DISPLAY_TEMPLATE = '1';
+    const DISPLAY_HELPER = '2';
+    const DISPLAY_THEME = '3';
+
     /************
      * Хелперы
      ************/
@@ -16,8 +20,9 @@ class shopSmartfiltersPlugin extends shopPlugin {
      */
     public static function get($category_id)
     {
-        if(wa('shop')->getPlugin('smartfilters')->getSettings('enabled') !== '1')
+        if(wa('shop')->getPlugin('smartfilters')->getSettings('enabled') === self::DISPLAY_HELPER) {
             return self::display($category_id);
+        }
         return '';
     }
 
@@ -28,12 +33,35 @@ class shopSmartfiltersPlugin extends shopPlugin {
      * @return array
      */
     public static function getFiltersForCategory($category_id) {
-        if ($category_id) {
+        static $filters;
+        if($filters === null) {
+            $filters = array();
+        }
+        if(!isset($filters[$category_id])) {
             $feature_model = new shopSmartfiltersPluginFeatureModel();
-            return $feature_model->getByCategoryId($category_id);
+            $filters[$category_id] = $feature_model->getByCategoryId($category_id);
         }
 
-        return array();
+        return ifempty($filters[$category_id], array());
+    }
+
+    /**
+     * Хелпер для вывода JS в category.html
+     *
+     * @param $category_id
+     * @return string
+     */
+    public static function categoryTheme($category_id)
+    {
+        if($filters = self::getFiltersForCategory($category_id)) {
+            $view = wa()->getView();
+            $view->assign('filters', $filters); // rewrite default var
+            $plugin = wa('shop')->getPlugin('smartfilters');
+            $view->assign('smartfilters', $plugin->getSettings());
+            return $view->fetch($plugin->path.'/templates/hooks/frontendCategoryTheme.html');
+        }
+
+        return '';
     }
 
 
@@ -47,10 +75,16 @@ class shopSmartfiltersPlugin extends shopPlugin {
      */
     public function frontendHead()
     {
-        if($this->getSettings('enabled') && !$this->getSettings('ui_slider') && (waRequest::param('action') == 'category')) {
-            $view = wa()->getView();
-            return $view->fetch($this->path.'/templates/hooks/frontendHead.html');
+        if(waRequest::param('action') == 'category') {
+            $e = $this->getSettings('enabled');
 
+            if ($e && ($e !== self::DISPLAY_THEME) && !$this->getSettings('ui_slider')) {
+                $view = wa()->getView();
+                return $view->fetch($this->path . '/templates/hooks/frontendHead.html');
+            } elseif ($e === self::DISPLAY_THEME) {
+                $view = wa()->getView();
+                return $view->fetch($this->path . '/templates/hooks/frontendHeadTheme.html');
+            }
         }
 
         return '';
@@ -62,8 +96,12 @@ class shopSmartfiltersPlugin extends shopPlugin {
      */
     public function frontendCategory($category)
     {
-        if($this->getSettings('enabled') === '1')
+        $enabled = $this->getSettings('enabled');
+        if($enabled === self::DISPLAY_TEMPLATE) {
             return self::display($category['id']);
+        } elseif($enabled === self::DISPLAY_THEME) {
+            return self::categoryTheme($category['id']);
+        }
         return '';
     }
 
@@ -160,10 +198,7 @@ class shopSmartfiltersPlugin extends shopPlugin {
      */
     private static function display($category_id)
     {
-        if ($category_id) {
-            $feature_model = new shopSmartfiltersPluginFeatureModel();
-            $filters = $feature_model->getByCategoryId($category_id);
-
+        if ($filters = self::getFiltersForCategory($category_id)) {
             $list = new shopSmartfiltersPluginShowAction();
             $list->setFilters($filters);
             return $list->display(false);
@@ -171,4 +206,3 @@ class shopSmartfiltersPlugin extends shopPlugin {
         return '';
     }
 }
-

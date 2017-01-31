@@ -22,8 +22,9 @@
         <div class="value no-shift">
             <select name="enabled">
                 <option value="0">нет</option>
-                <option value="1"{if $enabled eq '1'} selected{/if}>да</option>
-                <option value="2"{if $enabled eq '2'} selected{/if}>в произвольном месте шаблона</option>
+                <option value="3"{if $enabled eq '3'} selected{/if}>интеграция с темой</option>
+                <option value="1"{if $enabled eq '1'} selected{/if}>свой шаблон на месте хука frontend_category</option>
+                <option value="2"{if $enabled eq '2'} selected{/if}>свой шаблон в произвольном месте при помощи хелпера</option>
             </select>
         </div>
     </div>
