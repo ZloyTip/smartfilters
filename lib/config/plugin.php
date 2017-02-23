@@ -2,9 +2,9 @@
 
 return array(
     'name' => 'Smart Filters',
-    'description' => 'Плагин фильтрации в категориях',
+    'description' => 'Отличное дополнение фильтров в категории',
     'vendor'=>'972539',
-    'version'=>'1.0.0',
+    'version'=>'2.0.0',
     'img'=>'img/smartfilters.gif',
 	'handlers'=> array(
         'frontend_category' => 'frontendCategory',

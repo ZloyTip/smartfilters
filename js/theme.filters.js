@@ -2,8 +2,7 @@
     $.smartfiltersTheme = function(_filters, _options){
         var that = this;
         that.filters = _filters;
-        that.options = $.extend({
-            hideDisabled : false, /* hide disabled features */
+        that.o = $.extend({
             parentLabelSelector: 'label',
             parentParamSelector: '.filter-param,p'
         }, _options);
@@ -37,21 +36,16 @@
                             $field = $fields.filter('[value="'+i+'"]');
                             disabled = v.disabled.hasOwnProperty(i) && v.disabled[i];
                             $field.prop('disabled', disabled);
-                            if(that.options.hideDisabled) {
-                                a = disabled ? 'hide' : 'show';
-                                $field.closest(that.options.parentLabelSelector)[a]();
-                            }
+                            a = disabled ? 'add' : 'remove';
+                            $field.closest(that.o.parentLabelSelector)[a+'Class']('sf-label-disabled');
                         }
-                        if(that.options.hideDisabled) {
-                            a = $fields.filter(':visible').length ? 'show' : 'hide';
-                            $fields.closest(that.options.parentParamSelector)[a]();
-                        }
+
+                        a = $fields.filter(':not(:disabled)').length ? 'remove' : 'add';
+                        $fields.closest(that.o.parentParamSelector)[a+'Class']('sf-param-disabled');
                     } else {
                         $fields.prop('disabled', false);
-                        if(that.options.hideDisabled) {
-                            $fields.closest(that.options.parentLabelSelector).show();
-                            $fields.closest(that.options.parentParamSelector).show();
-                        }
+                        $fields.closest(that.o.parentLabelSelector).removeClass('sf-label-disabled');
+                        $fields.closest(that.o.parentParamSelector).removeClass('sf-param-disabled');
                     }
                 } else {
                     /* search selects */
@@ -69,7 +63,7 @@
                         f = f.text();
                         f = $.parseJSON(f);
                         that.filters = f;
-                        $.smartfiltersTheme(f, that.options);
+                        $.smartfiltersTheme(f, that.o);
                     }
                 })
             }
