@@ -2,44 +2,59 @@
     #tutorial.opened {
         display: block!important;
     }
+    [data-enabled] {
+        display: none;
+    }
 </style>
 
 <div class="block double-padded">
     <h1>Smart Filters</h1>
-    <p>Для отображения фильтра во всех категориях настройте используемую тему (<a href="#" class="inline-link" onclick="$('#tutorial').toggleClass('opened'); return false;">инструкция</a>) и включите плагин.</p>
-    <div id="tutorial" class="block double-padded" style="border: 1px solid #ccc;display: none;margin-bottom: 20px">
-        <p>Для установки плагина оберните <code class="bold italic">{ldelim}$content{rdelim}</code> в <code class="bold italic">&lt;div <span class="red">id="smartfiltercontent"</span>&gt;...&lt;/div&gt;</code> в файле <code class="bold italic">main.html</code> или <code class="bold italic">content.html</code> используемой темы.</p>
-        <p>Пример для темы <span class="bold">CUSTOM</span>:<br><br>
-            <img src="{$wa_url}wa-apps/shop/plugins/smartfilters/img/example.png">
-        </p>
-    </div>
-    <p class="gray"><i class="icon16 exclamation"></i> Обратите внимание, данный плагин не замещает стандартные фильтры. Если вы включили плагин вместе с фильтрами в категории, будут показаны оба блока.</p>
-    <p class="gray"><i class="icon16 exclamation"></i> Для вывода в произвольном месте шаблона добавьте <b><code>{ldelim}shopSmartfiltersPlugin::get($category.id){rdelim}</code></b> в файл <b>category.html</b> используемой темы.</p>
-    <form method="post" action="?plugin=smartfilters&action=save" id="plugins-settings-form">
+
+    <p class="hint">Отличное дополнение фильтров в категории</p>
+
+    <form method="post" action="?module=plugins&id=smartfilters&action=save" id="plugins-settings-form">
 	{$wa->csrf()}
-    <div class="field">
-        <div class="name">Включить фильтрацию</div>
-        <div class="value no-shift">
-            <select name="enabled">
-                <option value="0">нет</option>
-                <option value="1"{if $enabled eq '1'} selected{/if}>да</option>
-                <option value="2"{if $enabled eq '2'} selected{/if}>в произвольном месте шаблона</option>
-            </select>
+    <div class="field">{$controls.enabled}</div>
+
+    <div class="field" data-enabled="1,2">
+        <div class="value">
+        <p class="hint">Для отображения фильтра во всех категориях настройте используемую тему (<a href="#" class="inline-link" onclick="$('#tutorial').toggleClass('opened'); return false;">инструкция</a>).</p>
+        <div id="tutorial" class="block double-padded" style="border: 1px solid #ccc;display: none;margin-bottom: 20px">
+            <p>Для установки плагина оберните <code class="bold italic">{ldelim}$content{rdelim}</code> в <code class="bold italic">&lt;div <span class="red">id="smartfiltercontent"</span>&gt;...&lt;/div&gt;</code> в файле <code class="bold italic">main.html</code> или <code class="bold italic">content.html</code> используемой темы.</p>
+            <p>Пример для темы <span class="bold">CUSTOM</span>:<br><br>
+                <img src="{$wa_url}wa-apps/shop/plugins/smartfilters/img/example.png">
+            </p>
+        </div>
+        </div>
+    </div>
+    <div class="field" data-enabled="0">
+        <div class="value"><p class="hint"><i class="icon16 exclamation"></i> <strong>Плагин отключён.</strong> Вы всё-равно можете настраивать доступные фильтры в категории, но показаны они при этом не будут.</p></div>
+    </div>
+    <div class="field" data-enabled="1,2">
+        <div class="value"><p class="hint"><i class="icon16 exclamation"></i> Обратите внимание, данный способ не замещает стандартные фильтры. Если вы включили плагин вместе с фильтрами в категории, будут показаны оба блока.</p></div>
+    </div>
+    <div class="field" data-enabled="2">
+        <div class="value">
+            <p class="hint" data-enabled="1,2"><i class="icon16 exclamation"></i> Для вывода в произвольном месте шаблона добавьте <b><code>{ldelim}shopSmartfiltersPlugin::get($category.id){rdelim}</code></b> в файл <b>category.html</b> используемой темы.</p>
+        </div>
+    </div>
+    <div class="field" data-enabled="3">
+        <div class="value">
+            <p class="hint" data-enabled="3">
+                <i class="icon16 star"></i> Полностью автоматически интегрируется с вашей темой дизайна. Достаточно включить эту опцию и настроить фильтры для категории.
+            </p>
         </div>
     </div>
 
-    <div class="field">
-        <div class="name">Сортировка значений</div>
-        <div class="value no-shift">
-            <select name="order">
-                <option value="">нет</option>
-                <option value="value_asc"{if $order eq 'value_asc'} selected{/if}>Наименование (А &rarr; Я)</option>
-                <option value="value_desc"{if $order eq 'value_desc'} selected{/if}>Наименование (Я &rarr; А)</option>
-            </select>
-        </div>
-    </div>
+    <div class="field" data-enabled="1,2,3">{$controls.order}</div>
 
-    <div class="field">
+    <div class="field" data-enabled="1,2">{$controls.ui_slider}</div>
+
+    <div class="field" data-enabled="3">{$controls.hideDisabled}</div>
+    <div class="field" data-enabled="3">{$controls.parentLabelSelector}</div>
+    <div class="field" data-enabled="3">{$controls.parentParamSelector}</div>
+
+    <div class="field" data-enabled="1,2">
         <div class="name">Шаблон фильтра</div>
         <div class="value">
             <p>Для настройки внешнего вида блока фильтра добавьте файл <code class="highlighted">{shopSmartfiltersPlugin::THEME_FILE}</code>
@@ -54,19 +69,6 @@
     </div>
 
     <div class="field">
-        <div class="name">Подключить jQuery UI slider</div>
-        <div class="value no-shift">
-            <select name="ui_slider">
-                <option value="1">нет</option>
-                <option value="0"{if !$ui_slider} selected{/if}>да</option>
-            </select>
-            <p class="hint">
-                Библиотека нужна для работы слайдеров в стандартном шаблоне. Подлючается через хук <strong>frontend_head</strong>.
-            </p>
-        </div>
-    </div>
-
-    <div class="field">
         <div class="value submit">
             <input type="submit" class="button green" value="Сохранить">
             <span id="plugins-settings-form-status" style="display:none"><!-- message placeholder --></span>
@@ -75,3 +77,17 @@
 
     </form>
 </div>
+<script>
+$(function () {
+    $('[name="shop_smartfilters[enabled]"]').change(function () {
+        var $f = $(this).closest('form'),
+            $ff = $f.find('[data-enabled]');
+        $ff.filter('[data-enabled*="'+$(this).val()+'"]').fadeIn(function () {
+            $(this).find('input,select').trigger('change');
+        });
+        $ff.filter(':not([data-enabled*="'+$(this).val()+'"])').hide();
+    }).trigger('change');
+})
+</script>
+
+<div class="block hint" style="position: absolute;bottom: 10px;right: 20px">Крутая v2.0 | <a href="https://www.webasyst.ru/store/plugin/shop/smartfilters/reviews/" target="_blank">Благодарности</a> | <a href="http://hardmandev.com/support/add/?tags[]=Smart+Filters" target="_blank">Предложения</a> | <a href="http://hardmandev.com/feedback/" target="_blank">Ошибки</a> | &copy; <a href="https://www.webasyst.ru/store/vendor/972539/" target="_blank">Hardman</a> 2017</div>

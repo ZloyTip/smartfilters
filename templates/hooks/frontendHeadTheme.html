@@ -1,0 +1,14 @@
+{strip}
+<style>
+{if !empty($smartfilters.hideDisabled)}
+.sf-label-disabled, .sf-param-disabled {
+    display: none!important;
+}
+{else}
+.sf-label-disabled {
+    color: #aaa!important;
+}
+{/if}
+</style>
+<script type="text/javascript" src="{$wa_url}wa-apps/shop/plugins/smartfilters/js/theme.filters.min.js?v1.1.0"></script>
+{/strip}

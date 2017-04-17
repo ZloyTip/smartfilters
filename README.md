@@ -1,4 +1,4 @@
 Smart Filters
 ============
 
-AJAX Filters plugin for Shop-Script 5
+The best filters plugin for Shop-Script

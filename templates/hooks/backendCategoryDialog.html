@@ -1,25 +1,41 @@
+<style>
+#smartfilters-category-filter .inline-link{
+    display: inline
+}
+#smartfilters-category-filter {
+    padding-top: 0;
+}
+</style>
 <div class="field">
-    <div class="name">Smart Filters</div>
+    <div class="name">
+        Smart Filters
+    </div>
     <div class="value no-shift">
         <label>
             <input type="checkbox" name="allow_smartfilters" value="1" id="smartfilters-category-allow-filter" {if $allow_smartfilters}checked{/if}> Разрешить фильтрацию товаров
-            <span class="hint">Фильтрация товаров позволит покупателям подбирать товары внутри этой категории по значениям характеристик, например, по цвету, производителю, цене</span>
-        </label><br><br>
-        <label>
-            <input type="checkbox" name="smartfilters_descendants" value="1"> Применить ко вложенным категориям
+            <div class="block hint">
+                Фильтрация товаров позволит покупателям подбирать товары внутри этой категории по значениям характеристик, например, по цвету, производителю, цене.<br>
+                <strong>Smart Filters</strong> поможет исключить варианты фильтров, которые не приведут к результатам. Желательно не использовать одновременно со стандартной опцией ниже.
+            </div>
         </label>
         <div class="block" id="smartfilters-category-filter" {if !$allow_smartfilters}style="display:none;"{/if}>
             <ul class="menu-v compact small">
                 <li>
-                    <a href="#" class="inline-link check" style="display: inline"><b><i>Отметить все</i></b></a> /
-                    <a href="#" class="inline-link check uncheck" style="display: inline"><b><i>Снять отметки</i></b></a>
+                    <a href="#" class="inline-link" data-check="1"><b><i>Отметить все</i></b></a> /
+                    <a href="#" class="inline-link" data-check="0"><b><i>Снять отметки</i></b></a> /
+                    <a href="#" class="inline-link" data-show="1" ><b><i>Показать фильтры</i></b></a>
+                    <a href="#" class="inline-link" data-show="0" style="display: none"><b><i>Скрыть фильтры</i></b></a> /
+                    <label class="hint">
+                        <input type="checkbox" name="smartfilters_descendants" value="1"> Применить фильтры ко вложенным категориям
+                    </label>
                 </li>
                 {foreach $smartfilters as $feature}
-                    <li>
+                    <li class="smartfilters-item" style="display: none">
                         <i class="icon16 sort"></i>
                         <label>
                             <input type="checkbox" name="smartfilters[]" value="{$feature.id}"{if !empty($feature.checked) || ($feature.id == 'price' && !$allow_smartfilters)} checked{/if}>
                             <input type="text" name="smartfilters_name[]" value="{ifempty($smartfilters_name[$feature.id])|escape}" placeholder="{$feature.name|escape}">
+                            <span class="hint">{$feature.code|default:''}</span>
                         </label>
                     </li>
                 {/foreach}
@@ -31,15 +47,21 @@
 <script>
 $(function () {
 
+    var $scf = $('#smartfilters-category-filter');
+
     $('#smartfilters-category-allow-filter').click(function() {
         if (this.checked) {
-            $('#smartfilters-category-filter').show();
+            $scf.show();
+            $('[data-show="1"]', $scf).click()
+
+            var af = $('[name="allow_filter"]');
+            if(af.is(':checked')) af.trigger('click');
         } else {
-            $('#smartfilters-category-filter').hide();
+            $scf.hide();
+
         }
     });
-    var scf = $('#smartfilters-category-filter');
-    scf.sortable({
+    $scf.sortable({
         distance: 5,
         opacity: 0.75,
         items: 'li',
@@ -58,11 +80,16 @@ $(function () {
         }
     });
 
-    $('.check', scf).click(function(e){
+    $('[data-check]', $scf).click(function(e){
         e.preventDefault();
-        $(this).closest('ul').find(':checkbox').prop('checked',!$(this).hasClass('uncheck'));
+        $(this).closest('ul').find('.smartfilters-item :checkbox').prop('checked',!!$(this).data('check'));
     })
 
-
+    $('[data-show]', $scf).click(function(e){
+        e.preventDefault();
+        var a = !!$(this).data('show') ? 'show' : 'hide';
+        $('.smartfilters-item', $scf)[a]();
+        $(this).hide().siblings('[data-show]').show();
+    })
 })
 </script>
