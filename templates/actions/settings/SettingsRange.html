@@ -1,0 +1,204 @@
+<tr>
+    <td>
+        <i class="icon16 delete remove"></i>
+    </td>
+    <td style="width: 250px">
+        <strong>{$range.feature.name|escape}</strong> <span class="hint">{$range.feature.code|escape}</span>
+        <div><br><input type="button" value="сохранить"></div>
+    </td>
+    <td id="range{$range.feature.id}">
+        {foreach $range.types as $type_id => $type}
+        <div class="type-wrapper">
+        <table class="zebra" >
+            <thead>
+            <tr>
+                <td colspan="2">Тип товара: <strong>{$type.name}</strong></td>
+            </tr>
+            <tr>
+                {$name = "`$range.feature.name|escape` (`$type.name`)"}
+
+                <td colspan="2">Название характеристики: <input value="{$range.name|escape|default:$name}" placeholder="{$name}"></td>
+            </tr>
+            <tr>
+                {$code = "`$range.feature.code|escape``$type_id`"}
+                <td colspan="2">Код характеристики: <input value="{$range.name|escape|default:$code}" placeholder="{$code}"></td>
+            </tr>
+            <tr>
+                <td colspan="2"><a href="#" class="inline-link add-range"><i class="icon10 add"></i> <b><i>добавить диапазон</i></b></a></td>
+            </tr>
+            </thead>
+            <tbody>
+            {**}
+            {$has_ranges = false}
+            {foreach $type.ranges as $r}
+            {$c = count($r.values)}
+            {if $c > 1 || ($c && ($r.name !== ifempty($type.values[$r.values[0]])))}
+                <tr data-range_feature_value_id="{$r.id}">
+                    <td class="min-width"><i class="icon16 sort"></i></td>
+                    <td>
+                        <div><input type="text" value="{$r.name|escape}" class="bold" placeholder="Название диапазона"></div>
+                        <table class="zebra range">
+                            <tbody >
+                            <tr class="empty" style="display: none">
+                                <td colspan="2">
+                                    пусто
+                                </td>
+                            </tr>
+                            {foreach $r.values as $vid}
+                                {if !empty($type.values[$vid])}
+
+                                    <tr data-feature_value_id"{$vid}">
+                                        <td class="min-width"><i class="icon16 sort"></i></td>
+                                        <td>
+                                            {$type.values[$vid]}
+                                            {$type.values[$vid] = null}
+                                        </td>
+                                    </tr>
+                                {/if}
+                            {/foreach}
+                            <tr class="empty2"{if $c > 1} style="display: none"{/if}>
+                                <td colspan="2">
+                                    перетяните характеристики, чтобы добавить их в диапазон
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    {$has_ranges = true}
+                </tr>
+            {elseif $c}
+                {$vid = $r.values[0]}
+                {if !empty($type.values[$vid])}
+
+                    <tr data-feature_value_id"{$vid}" data-range_feature_value_id="{$r.id}">
+                        <td class="min-width"><i class="icon16 sort"></i></td>
+                        <td>
+                            {$type.values[$vid]}
+                            {$type.values[$vid] = null}
+                        </td>
+                    </tr>
+                    {$has_ranges = true}
+                {/if}
+            {/if}
+            {/foreach}
+            {foreach $type.values as $vid => $v}
+            {if is_null($v)}{continue}{/if}
+            <tr>
+                <td class="min-width"><i class="icon16 sort"></i></td>
+                <td>
+                    <span{if $has_ranges} style="font-weight: bold;color: red;"{/if}>{$v}</span>
+                </td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+        <div class="save-wrapper"><input type="button" class="button gray" value="сохранить"></div>
+        </div>
+        {/foreach}
+
+        <script>
+            (function ($) {
+                $(function () {
+                    var $w = $("#range{$range.feature.id}");
+                    $w.find('.type-wrapper>.zebra').sortable({
+                        //'distance': 5,
+                        'opacity': 0.75,
+                        'items': 'tbody tr:visible',
+                        'handle': '.sort',
+                        'cursor': 'move',
+                        //'tolerance': 'pointer',
+                        //'placeholder': 'range-placeholder',
+                        'start': function () {
+                            //$('.block.drop-target').addClass('drag-active');
+                        },
+                        'stop': function (e, ui) {
+                            var $tbody = ui.item.closest('tbody'),
+                                $table = $tbody.closest('table'),
+                                $tr = $tbody.find('>tr'),
+                                $tw = ui.item.closest('.type-wrapper'),
+                                $button = $tw.find('[type="button"]');
+
+                            if($table.hasClass('range') && ui.item.find('.range').length) {
+                                // диапазон в диапазон
+                                $(this).sortable('cancel');
+                            }
+
+                            $tw.find('.range').each(function(i, v){
+                                var $tr = $(v).find('tr'),
+                                    cnt = $(v).find('tr').length;
+
+                                console.log(cnt);
+
+                                if(cnt <= 2) {
+                                    $tr.filter('.empty').show();
+                                    $tr.filter('.empty2').show();
+                                } else if (cnt === 3) {
+                                    $tr.filter('.empty').hide();
+                                    $tr.filter('.empty2').show();
+                                } else {
+                                    $tr.filter('.empty').hide();
+                                    $tr.filter('.empty2').hide();
+                                }
+                            });
+
+                            if($tw.find('.error-msg').length) {
+                                $button.removeClass('green').addClass('gray');
+                            } else {
+                                $button.removeClass('gray').addClass('green');
+                            }
+                        },
+                        'change': function (e, ui) {
+                        }
+                    });
+                    $w.find('.add-range').click(function (e) {
+                        e.preventDefault();
+                        $(this).closest('table').find('tbody:first').prepend(
+                            $(
+                            '<tr>' +
+                                '<td class="min-width"><i class="icon16 sort"></i></td>' +
+                                '<td>' +
+                                    '<div><input type="text" value="" class="bold" placeholder="Название диапазона"></div>' +
+                                    '<table class="zebra range">' +
+                                        '<tbody >' +
+                                            '<tr class="empty">' +
+                                                '<td colspan="2">пусто</td>' +
+                                            '</tr>' +
+                                            '<tr class="empty2">' +
+                                                '<td colspan="2">перетяните характеристики, чтобы добавить их в диапазон</td>' +
+                                            '</tr>' +
+                                        '</tbody>' +
+                                    '</table>' +
+                                '</td>' +
+                            '</tr>'
+                            )
+                        );
+                    });
+                    $w.find('[type="button"]').click(function () {
+                        if(!$(this).hasClass('gray')) {
+
+                        }
+                    });
+
+                    $w.on('blur', 'input[type="text"]', function () {
+                        var $parent = $(this).parent(),
+                            $tw = $(this).closest('.type-wrapper'),
+                            $sw = $tw.find('.save-wrapper'),
+                            $button = $sw.find('[type="button"]');
+
+                        $.post('?plugin=smartfilters&module=range&action=validate', { }, function(r){
+                            $parent.find('.error-msg').remove();
+                            if(r.status === 'ok') {
+                                $button.removeClass('gray').addClass('green');
+                            } else {
+                                $button.removeClass('green').addClass('gray');
+                                $parent.append('<span class="error-msg">'+r.errors+'</span>');
+                            }
+                        }, 'json').fail(function(){
+                            alert('Ошибка! Обновите страницу и повторите попытку');
+                        });
+                    })
+                });
+            })(jQuery);
+        </script>
+    </td>
+</tr>

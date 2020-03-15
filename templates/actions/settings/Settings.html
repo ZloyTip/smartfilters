@@ -10,7 +10,7 @@
 <div class="block double-padded">
     <h1>Smart Filters</h1>
 
-    <p class="hint">Отличное дополнение фильтров в категории</p>
+    <p class="hint">Отличное дополнение фильтров в категории. <a href="https://www.webasyst.ru/store/plugin/shop/smartfilters/manual/" target="_blank">Инструкция</a> по установке плагина.</p>
 
     <form method="post" action="?module=plugins&id=smartfilters&action=save" id="plugins-settings-form">
 	{$wa->csrf()}
@@ -68,6 +68,12 @@
         </div>
     </div>
 
+    <div class="field" data-enabled="1,2,3">{$controls.color_change}</div>
+    <div class="field" data-enabled="1,2,3">{$controls.sf_available}</div>
+    <div class="field" data-enabled="1,2,3">{$controls.settings_show_list}</div>
+    <div class="field" data-enabled="1,2,3">{$controls.settings_only_available}</div>
+    <div class="field" data-enabled="1,2,3">{$controls.max_count}</div>
+
     <div class="field">
         <div class="value submit">
             <input type="submit" class="button green" value="Сохранить">
@@ -90,4 +96,4 @@ $(function () {
 })
 </script>
 
-<div class="block hint" style="position: absolute;bottom: 10px;right: 20px">Крутая v2.0 | <a href="https://www.webasyst.ru/store/plugin/shop/smartfilters/reviews/" target="_blank">Благодарности</a> | <a href="http://hardmandev.com/support/add/?tags[]=Smart+Filters" target="_blank">Предложения</a> | <a href="http://hardmandev.com/feedback/" target="_blank">Ошибки</a> | &copy; <a href="https://www.webasyst.ru/store/vendor/972539/" target="_blank">Hardman</a> 2017</div>
+<div class="block hint" style="position: absolute;bottom: 10px;right: 20px">v2.5 | <a href="https://www.webasyst.ru/store/plugin/shop/smartfilters/reviews/" target="_blank">Благодарности</a> | <a href="https://hardmandev.com/support/add/?tags[]=Smart+Filters" target="_blank">Предложения</a> | <a href="https://hardmandev.com/feedback/" target="_blank">Ошибки</a> | &copy; <a href="https://www.webasyst.ru/store/vendor/972539/" target="_blank">Hardman</a> 2018</div>

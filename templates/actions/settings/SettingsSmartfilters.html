@@ -1,0 +1,126 @@
+<link rel="stylesheet" href="{$wa_app_static_url}plugins/smartfilters/css/jquery.formstyler.css"/>
+<link rel="stylesheet" href="{$wa_app_static_url}plugins/smartfilters/css/jquery.formstyler.theme.css"/>
+<script src="{$wa_app_static_url}plugins/smartfilters/js/jquery.formstyler.min.js"></script>
+<style>
+    #smartfilters .zebra tbody td{
+        vertical-align: top;
+    }
+    #smartfilters .zebra.range {
+        border: 1px dashed #aaa;
+    }
+    #smartfilters input.input {
+        background: transparent;
+    }
+    #smartfilters .error-msg {
+        display: inline-block;
+        font-size: 0.9em;
+        font-weight: bold;
+        font-style: italic;
+        color: red;
+        margin-left: .5em;
+    }
+    #smartfilters .save-wrapper {
+        margin: 10px 0 25px;
+    }
+</style>
+<div class="block double-padded blank">
+    <h1>Диапазоны характеристик</h1>
+
+    <div id="smartfilters">
+        <p class="gray">
+            Диапазоны характеристик &mdash; это характеристики специального типа, которые задаются автоматически в зависимости от значений другой характеристики.<br>
+            Например, у жесткого диска есть характеристика &laquo;Объем памяти&raquo; с набором данных: 256 Гб, 512 Гб, 1 Тб, 2 Тб, 3 Тб, 4 Тб, 6 Тб, 8 Тб, 10 Тб, 12 Тб.<br>
+            В зависимости от конкретного значения объёма товару будет присвоено значение диапазона: менее 512 Гб, 512 Гб - 1 Тб, 2 Тб, 3 Тб, 4 Тб, 6 Тб, более 8 Тб
+        </p>
+
+        {if !empty($features)}
+        <p>
+            Новый диапазон <select data-new-range>
+                <option value=""> - выберите характеристику - </option>
+                {foreach $features as $feature}
+                    <option value="{$feature.id}" data-code="{$feature.code|escape}">{$feature.name|escape} ({$feature.code|escape})</option>
+                {/foreach}
+            </select> <input class="button gray" type="button" value="Добавить" data-add>
+        </p>
+
+
+        <table class="zebra"{if empty($ranges)} style="display: none"{/if}>
+            <thead>
+            <tr>
+                <th class="min-width"></th>
+                <th>Характеристика-диапазон</th>
+                <th>Значения</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+            {foreach $ranges as $range}
+            {include file="./SettingsRange.html" inline}
+            {/foreach}
+            </tfoot>
+        </table>
+        {else}
+            <p><strong>Не создано ни одной характеристики.</strong></p>
+        {/if}
+    </div>
+</div>
+{if waRequest::getIp() === '127.0.0.1'}
+{* @TODO УБРАТЬ!!!! *}
+<script>
+$(function () {
+    setTimeout(function () {
+        $('#smartfilters').find('[data-new-range]').val('3').trigger('change').next().trigger('click');
+    }, 200)
+});
+</script>
+{/if}
+<script>
+(function ($) {
+$(function () {
+    var $w = $('#smartfilters'),
+        $table = $w.find('.zebra'),
+        $s = $w.find('[data-new-range]');
+
+
+
+
+    $w.find('[data-add]').click(function () {
+        if($(this).hasClass('gray')) {
+            return;
+        }
+
+        var val = $s.val(),
+            opt = $s.find('[value="'+val+'"]'),
+            $tr = $('<tr><td style="text-align: center" colspan="3"><i class="icon16 loading"></i></td></tr>');
+
+
+
+        $(this).removeClass('green').addClass('gray');
+
+        opt.remove();
+        $s.val('');
+
+        $table.fadeIn().children('tbody').prepend($tr);
+
+        $.get('?plugin=smartfilters&module=settings&action=range&feature_id='+val, function (r) {
+            setTimeout(function () {
+                $tr.remove();
+                $table.show().children('tbody').prepend($(r));
+            }, 1000);
+        });
+
+    });
+
+    $w.find('[data-new-range]').change(function () {
+        if($(this).val() !== '') {
+            $w.find('[data-add]').removeClass('gray').addClass('green');
+        }
+    });
+
+    $table.on('click', '.delete', function () {
+        /* @todo отправить запрос на удаление */
+        $(this).closest('tr').remove();
+    })
+})
+})(jQuery);
+</script>

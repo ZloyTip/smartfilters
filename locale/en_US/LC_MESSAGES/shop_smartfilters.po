@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: shop/plugins/smartfilters\n"
+"POT-Creation-Date: 2017-08-24 10:53+0300\n"
+"PO-Revision-Date: \n"
+"Last-Translator:  shop/plugins/smartfilters\n"
+"Language-Team:  shop/plugins/smartfilters\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: en_US\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: .\n"
+
+#: /wa-apps/shop/plugins/smartfilters/lib/model/shopSmartfiltersPluginFeature.model.php:85
+#: /wa-apps/shop/plugins/smartfilters/lib/shopSmartfilters.plugin.php:142
+msgid "In stock"
+msgstr ""
+
+#: /wa-apps/shop/plugins/smartfilters/lib/model/shopSmartfiltersPluginFeature.model.php:87
+msgid "Only available"
+msgstr ""
+
+#: /wa-apps/shop/plugins/smartfilters/lib/shopSmartfilters.plugin.php:138
+msgid "Price"
+msgstr ""

@@ -6,6 +6,7 @@
     padding-top: 0;
 }
 </style>
+<input type="hidden" name="smartfilters" value="1">
 <div class="field">
     <div class="name">
         Smart Filters
@@ -23,18 +24,19 @@
                 <li>
                     <a href="#" class="inline-link" data-check="1"><b><i>Отметить все</i></b></a> /
                     <a href="#" class="inline-link" data-check="0"><b><i>Снять отметки</i></b></a> /
-                    <a href="#" class="inline-link" data-show="1" ><b><i>Показать фильтры</i></b></a>
-                    <a href="#" class="inline-link" data-show="0" style="display: none"><b><i>Скрыть фильтры</i></b></a> /
+                    <a href="#" class="inline-link" data-show="1"{if $smartfilters_show} style="display: none"{/if}><b><i>Показать фильтры</i></b></a>
+                    <a href="#" class="inline-link" data-show="0"{if !$smartfilters_show} style="display: none"{/if}><b><i>Скрыть фильтры</i></b></a> /
                     <label class="hint">
                         <input type="checkbox" name="smartfilters_descendants" value="1"> Применить фильтры ко вложенным категориям
                     </label>
                 </li>
                 {foreach $smartfilters as $feature}
-                    <li class="smartfilters-item" style="display: none">
+                    <li class="smartfilters-item"{if !$smartfilters_show} style="display: none"{/if}>
                         <i class="icon16 sort"></i>
                         <label>
-                            <input type="checkbox" name="smartfilters[]" value="{$feature.id}"{if !empty($feature.checked) || ($feature.id == 'price' && !$allow_smartfilters)} checked{/if}>
-                            <input type="text" name="smartfilters_name[]" value="{ifempty($smartfilters_name[$feature.id])|escape}" placeholder="{$feature.name|escape}">
+                            {$checked = !empty($feature.checked) || ($feature.id == 'price' && !$allow_smartfilters)}
+                            <input type="checkbox" name="smartfilters[]" value="{$feature.id}"{if $checked} checked{/if}>
+                            <input type="text" value="{$feature.new_name|escape|default:''}" placeholder="{$feature.name|escape}"{if $checked} name="smartfilters_name[]" {else} disabled{/if}>
                             <span class="hint">{$feature.code|default:''}</span>
                         </label>
                     </li>
@@ -45,6 +47,7 @@
 
 </div>
 <script>
+(function ($) {
 $(function () {
 
     var $scf = $('#smartfilters-category-filter');
@@ -82,8 +85,9 @@ $(function () {
 
     $('[data-check]', $scf).click(function(e){
         e.preventDefault();
-        $(this).closest('ul').find('.smartfilters-item :checkbox').prop('checked',!!$(this).data('check'));
-    })
+        $(this).closest('ul').find('.smartfilters-item :checkbox')
+            .prop('checked',!!$(this).data('check'));
+    });
 
     $('[data-show]', $scf).click(function(e){
         e.preventDefault();
@@ -92,4 +96,5 @@ $(function () {
         $(this).hide().siblings('[data-show]').show();
     })
 })
+})(jQuery);
 </script>
