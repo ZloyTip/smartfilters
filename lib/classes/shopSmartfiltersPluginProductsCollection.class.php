@@ -13,7 +13,7 @@ class shopSmartfiltersPluginProductsCollection extends shopProductsCollection
             return;
         }
         $collection->options['skip_smartfilters'] = true;
-        $collection->options['no_plugins'] = true;
+        $collection->options['no_plugins_products_collection'] = true;
 
         $data = waRequest::get();
         $delete = array('page', 'sort', 'order');
