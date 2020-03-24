@@ -34,20 +34,25 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                         $filter['disabled'][$val_id] = true;
                     }
                 } elseif (is_array($enabledFilters)) {
-                    $min = isset($filter['max']) ? $filter['max'] : null; // ключи меняем местами, чтобы вычислить новое значение.
-                    $max = isset($filter['min']) ? $filter['min'] : null;
-                    $unit = null;
+                    $min = $max = $unit = null;
                     $new_minmax = false;
 
                     foreach ($filter['values'] as $val_id =>  $val) {
                         $filter['disabled'][$val_id] = in_array($val_id, $enabledFilters) ? false : true;
                         if(!$filter['disabled'][$val_id]) {
                             $new_minmax = true;
+
                             $this->_castMinMax($val, $min, $max, $unit);
                         }
                     }
 
                     if($new_minmax) {
+                        if (!empty($filter['unit'])) {
+                            $type = preg_replace('/^[^\.]*\./', '', $filter['type']);
+                            $dimension = shopDimension::getInstance();
+                            $min = $dimension->convert($min, $type, $filter['unit']['value']);
+                            $max = $dimension->convert($max, $type, $filter['unit']['value']);
+                        }
                         if ($min !== null) {
                             $filter['nmin'] = $min;
                         }
