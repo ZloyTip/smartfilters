@@ -36,20 +36,14 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                 } elseif (is_array($enabledFilters)) {
                     $min = isset($filter['max']) ? $filter['max'] : null; // ключи меняем местами, чтобы вычислить новое значение.
                     $max = isset($filter['min']) ? $filter['min'] : null;
+                    $unit = null;
                     $new_minmax = false;
 
                     foreach ($filter['values'] as $val_id =>  $val) {
                         $filter['disabled'][$val_id] = in_array($val_id, $enabledFilters) ? false : true;
                         if(!$filter['disabled'][$val_id]) {
                             $new_minmax = true;
-                            $_val = is_object($val) ? $val->value : $val;
-                            if($min !== null) {
-                                $min = min($min, $_val);
-                            }
-                            if($max !== null) {
-                                $max = max($max, $_val);
-
-                            }
+                            $this->_castMinMax($val, $min, $max, $unit);
                         }
                     }
 
@@ -141,30 +135,7 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                     if (!in_array($v_id, $category_value_ids[$fid])) {
                         unset($filters[$code]['values'][$v_id]);
                     } else {
-                        if ($v instanceof shopRangeValue) {
-                            $begin = $this->getFeatureValue($v->begin);
-                            if ($min === null || $begin < $min) {
-                                $min = $begin;
-                            }
-                            $end = $this->getFeatureValue($v->end);
-                            if ($max === null || $end > $max) {
-                                $max = $end;
-                                if ($v->end instanceof shopDimensionValue) {
-                                    $unit = $v->end->unit;
-                                }
-                            }
-                        } else {
-                            $tmp_v = $this->getFeatureValue($v);
-                            if ($min === null || $tmp_v < $min) {
-                                $min = $tmp_v;
-                            }
-                            if ($max === null || $tmp_v > $max) {
-                                $max = $tmp_v;
-                                if ($v instanceof shopDimensionValue) {
-                                    $unit = $v->unit;
-                                }
-                            }
-                        }
+                        $this->_castMinMax($v, $min, $max, $unit);
                     }
                 }
                 if (!$filters[$code]['selectable'] && ($filters[$code]['type'] == 'double' ||
@@ -333,5 +304,39 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
         $res = array_map('intval', $res);
 
         return $res;
+    }
+
+    /**
+     * @param $v
+     * @param $min
+     * @param $max
+     * @param $unit
+     */
+    protected function _castMinMax($v, &$min, &$max, &$unit)
+    {
+        if ($v instanceof shopRangeValue) {
+            $begin = $this->getFeatureValue($v->begin);
+            if ($min === null || $begin < $min) {
+                $min = $begin;
+            }
+            $end = $this->getFeatureValue($v->end);
+            if ($max === null || $end > $max) {
+                $max = $end;
+                if ($v->end instanceof shopDimensionValue) {
+                    $unit = $v->end->unit;
+                }
+            }
+        } else {
+            $tmp_v = $this->getFeatureValue($v);
+            if ($min === null || $tmp_v < $min) {
+                $min = $tmp_v;
+            }
+            if ($max === null || $tmp_v > $max) {
+                $max = $tmp_v;
+                if ($v instanceof shopDimensionValue) {
+                    $unit = $v->unit;
+                }
+            }
+        }
     }
 }
