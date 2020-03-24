@@ -113,6 +113,13 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                         'min' => shop_currency($range['min'], null, null, false),
                         'max' => shop_currency($range['max'], null, null, false),
                     );
+                    if($data = waRequest::get()) {
+                        $collection->filters($data);
+
+                        $range = $collection->getPriceRange();
+                        $filters['price']['nmin'] = shop_currency($range['min'], null, null, false);
+                        $filters['price']['nmax'] = shop_currency($range['max'], null, null, false);
+                    }
                 }
             } elseif ($fid == 'sf_available') {
                 $filters[$fid] = array(
