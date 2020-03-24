@@ -4,7 +4,7 @@ return array(
     'name' => 'Smart Filters',
     'description' => 'Отличное дополнение фильтров в категории',
     'vendor'=>'972539',
-    'version'=>'2.5.0',
+    'version'=>'2.5.3',
     'img'=>'img/smartfilters.gif',
 	'handlers'=> array(
         'frontend_category' => 'frontendCategory',
