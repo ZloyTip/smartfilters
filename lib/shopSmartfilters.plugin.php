@@ -7,6 +7,7 @@ class shopSmartfiltersPlugin extends shopPlugin {
     const DISPLAY_TEMPLATE = '1';
     const DISPLAY_HELPER = '2';
     const DISPLAY_THEME = '3';
+    const DISPLAY_THEME_JS = '4';
 
     /************
      * Хелперы
@@ -24,6 +25,7 @@ class shopSmartfiltersPlugin extends shopPlugin {
             if(wa('shop')->getPlugin('smartfilters')->getSettings('enabled') === self::DISPLAY_HELPER) {
                 return self::display($category_id);
             }
+
         } catch (waException $e) {
         }
         return '';
@@ -87,13 +89,14 @@ class shopSmartfiltersPlugin extends shopPlugin {
     public function frontendHead()
     {
         if(waRequest::param('action') == 'category') {
+            $wa = wa('shop');
             $e = $this->getSettings('enabled');
 
-            if ($e && ($e !== self::DISPLAY_THEME) && !$this->getSettings('ui_slider')) {
-                $view = wa()->getView();
+            if ($e && in_array($e, [self::DISPLAY_HELPER, self::DISPLAY_TEMPLATE]) && !$this->getSettings('ui_slider')) {
+                $view = $wa->getView();
                 return $view->fetch($this->path . '/templates/hooks/frontendHead.html');
             } elseif ($e === self::DISPLAY_THEME) {
-                $view = wa()->getView();
+                $view = $wa->getView();
                 return $view->fetch($this->path . '/templates/hooks/frontendHeadTheme.html');
             }
         }
@@ -119,8 +122,7 @@ class shopSmartfiltersPlugin extends shopPlugin {
             $result = self::categoryTheme($category['id']);
         }
 
-        $filters = self::getFiltersForCategory($category['id']);
-        if ($filters && $this->getSettings('color_change')) {
+        if ($this->getSettings('color_change') && ($filters = self::getFiltersForCategory($category['id']))) {
 
             $view = wa('shop')->getView();
             $products = $view->getVars('products');

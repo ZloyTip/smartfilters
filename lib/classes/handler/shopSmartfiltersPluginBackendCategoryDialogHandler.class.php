@@ -119,7 +119,7 @@ class shopSmartfiltersPluginBackendCategoryDialogHandler
 
         $selectable_and_boolean_features = $this->feature_model
             ->select('*')
-            ->where("(selectable=1 OR type='boolean' OR type='double' OR type LIKE 'dimension\.%' OR ".
+            ->where("(type='varchar' OR type='text' OR type='boolean' OR type='double' OR type LIKE 'dimension\.%' OR ".
                 "type LIKE 'range\.%') AND parent_id IS NULL AND id IN(:ids)", array('ids' => $feature_ids))
             ->fetchAll('id');
 
@@ -144,7 +144,7 @@ class shopSmartfiltersPluginBackendCategoryDialogHandler
 
         $selectable_and_boolean_features = $this->feature_model
             ->select('*')
-            ->where("(selectable=1 OR type='boolean' OR type='double' OR type LIKE 'dimension\.%' OR ".
+            ->where("(type='varchar' OR type='text' OR type='boolean' OR type='double' OR type LIKE 'dimension\.%' OR ".
                 "type LIKE 'range\.%') AND parent_id IS NULL")
             ->fetchAll('id');
 

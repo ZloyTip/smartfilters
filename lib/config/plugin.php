@@ -16,5 +16,6 @@ return array(
         'products_collection.prepared' => 'productsCollectionPrepared',
     ),
     'shop_settings' => true,
+    'frontend' => true,
 );
 //EOF

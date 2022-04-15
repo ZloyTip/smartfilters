@@ -74,7 +74,10 @@
     <script type="text/javascript">
         $(function(){
             $('#smartfilter').smartfilters({
-                content_selector:'#smartfiltercontent'
+                content_selector:'#smartfiltercontent',
+                afterFilter: function () {
+                    /* подгрузка изображений */
+                }
             })
         });
     </script>

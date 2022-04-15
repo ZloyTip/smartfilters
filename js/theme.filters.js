@@ -14,14 +14,14 @@
                 bindAjax();
             }, 1000);
         } else {
-            $.smartfiltersTheme.log('$.smartfiltersTheme fail: form not found');
+            log && log('Form not found');
         }
 
         function findForm () {
             var $f = false;
             $.each(that.filters, function (name,v) {
                 if(!$f || !$f.length) {
-                    $f = $('[name^="'+name+'"]').closest('form');
+                    $f = $('[name^="'+name+'"],select[data-fid^="'+name+'"]').closest('form');
                     return false;
                 }
             });
@@ -31,6 +31,7 @@
         function disableFilters() {
             var $fields, $field, a, disabled, i, $param, $min, $max, $slider, values, value;
             $.each(that.filters, function (name,v) {
+
                 $fields = that.$form.find('input[name="' + name + '[]"]');
                 if ($fields.length)
                 {
@@ -58,7 +59,40 @@
                         $fields.closest(that.o.parentLabelSelector).removeClass('sf-label-disabled');
                         $param.removeClass('sf-param-disabled');
                     }
+
                 }
+                /* search selects */
+                else if(($fields = that.$form.find('select[name="' + name + '[]"],select[data-fid="' + name + '"]')) && $fields.length)
+                {
+                    $param = $fields.closest(that.o.parentParamSelector);
+
+                    $fields = $fields.find('option');
+                    if(v.disabled && !$.isEmptyObject(v.disabled)) {
+
+                        $fields.each(function (index, f) {
+                            $field = $(f);
+                            i = $field.prop('value');
+
+                            disabled =
+                                (v.disabled.hasOwnProperty(i) && v.disabled[i]) ||
+                                !v.values.hasOwnProperty(i)
+                            ;
+
+                            $field.prop('disabled', disabled).trigger('refresh');
+                            //a = disabled ? 'add' : 'remove';
+                            //$field.closest(that.o.parentLabelSelector)[a+'Class']('sf-label-disabled');
+                        });
+
+                        a = $fields.filter(':not(:disabled)').length ? 'remove' : 'add';
+                        $param[a+'Class']('sf-param-disabled');
+                    } else {
+                        $fields.prop('disabled', false).trigger('refresh');
+                        //$fields.closest(that.o.parentLabelSelector).removeClass('sf-label-disabled');
+                        $param.removeClass('sf-param-disabled');
+                    }
+                    $fields.closest('select').trigger('refresh');
+                }
+                /* search sliders */
                 else if(v.hasOwnProperty('nmin') || v.hasOwnProperty('nmax'))
                 {
                     $min = that.$form.find('input[name="' + name + (name !== 'price' ? '[min]' : '_min') + '"]');
@@ -115,37 +149,8 @@
                         }
                     }
 
-                    /* search selects */
-                }
-                else if(($fields = that.$form.find('select[name="' + name + '[]"]')) && $fields.length)
-                {
-                    $param = $fields.closest(that.o.parentParamSelector);
-
-                    $fields = $fields.find('option');
-                    if(v.disabled && !$.isEmptyObject(v.disabled)) {
-
-                        $fields.each(function (index, f) {
-                            $field = $(f);
-                            i = $field.prop('value');
-                            console.log(i);
-                            disabled =
-                                (v.disabled.hasOwnProperty(i) && v.disabled[i]) ||
-                                !v.values.hasOwnProperty(i)
-                            ;
-
-                            $field.prop('disabled', disabled).trigger('refresh');
-                            //a = disabled ? 'add' : 'remove';
-                            //$field.closest(that.o.parentLabelSelector)[a+'Class']('sf-label-disabled');
-                        });
-
-                        a = $fields.filter(':not(:disabled)').length ? 'remove' : 'add';
-                        $param[a+'Class']('sf-param-disabled');
-                    } else {
-                        $fields.prop('disabled', false).trigger('refresh');
-                        //$fields.closest(that.o.parentLabelSelector).removeClass('sf-label-disabled');
-                        $param.removeClass('sf-param-disabled');
-                    }
-                    $fields.closest('select').trigger('refresh');
+                } else {
+                    log && log('not found fields for "'+name+'"');
                 }
             });
         }

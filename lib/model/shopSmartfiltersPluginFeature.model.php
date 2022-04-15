@@ -3,10 +3,12 @@
 class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
 {
     private $category_id;
-    private $product_ids;
+    /**
+     * @var shopProductsCollection
+     */
+    private $collection;
     private $features;
     private $sf_available;
-    private $max_count;
 
     public function getByCategoryId($category_id)
     {
@@ -15,8 +17,10 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
          */
         $plugin = wa('shop')->getPlugin('smartfilters');
         $this->category_id = (int)$category_id;
-        $this->max_count = (int) $plugin->getSettings('max_count');
+
+        $s = microtime(1);
         $filters = $this->getPossibleFilterValues();
+
 
         if ($data = waRequest::get()) {
             $this->sf_available = $plugin->getSfAvailable();
@@ -27,7 +31,9 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                     //$filter['nmax'] = 2500;
                 }
                 if(in_array($code, array('price', 'sf_available'))) continue;
+
                 $enabledFilters = $this->getEnabledFilters($code, $data);
+
 
                 if ($enabledFilters === false) {
                     foreach ($filter['values'] as $val_id => $val) {
@@ -63,6 +69,7 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                 }
             }
         }
+        //wa_dump(round(microtime(1) - $s, 2));
         return $filters;
     }
 
@@ -77,16 +84,20 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
 
         $collection = new shopProductsCollection('category/'.$category['id'], array(
             'skip_smartfilters' => true,
+            'filters' => false,
             'no_plugins' => true,
         ));
+
+        $this->collection = clone $collection;
+
 
         $count = $collection->count();
         if (!$count) {
             return array();
         }
-        $limit = $this->max_count > 0 ? $this->max_count : $count;
-        $products = $collection->getProducts('id,price,compare_price,currency', 0, $limit);
-        $this->product_ids = array_keys($products);
+
+        //$products = $collection->getProducts('id,price,compare_price,currency', 0, $limit);
+        //$this->product_ids = array_keys($products);
 
         static $order;
         if($order === null) {
@@ -177,6 +188,7 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
                 $filters[$code]['name'] = $filter_names[$k];
             }
         }
+
         return $filters;
     }
 
@@ -208,11 +220,7 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
             }
         }
 
-        if(!$this->product_ids) {
-            return false;
-        }
-
-        if (!count($data)) {
+        if (!$this->collection || !count($data)) {
             return true;
         }
 
@@ -287,35 +295,41 @@ class shopSmartfiltersPluginFeatureModel extends shopFeatureModel
             }
         }
 
-        $where[] = 'p.id IN (:product_ids)';
-        $sql = "SELECT p.id FROM shop_product p " . implode('', $joins) . " WHERE " . implode(' AND ', $where) . " GROUP BY p.id";
 
-        $product_ids = $this->query($sql, array('product_ids' => $this->product_ids))->fetchAll(null, true);
-        if (!$product_ids) {
-            return false;
-        }
+
+        // @todo прям очень грубый подход. Да и getSql вроде не всегда был публичным методом.
+        // Надо будет пересмотреть.
+
+        $_sql = explode('WHERE', $this->collection->getSql());
+
+        $joins[] = ' JOIN shop_product_features pf ON pf.product_id = p.id ';
+        $joins[] = ' JOIN shop_product_skus sp ON sp.product_id = pf.product_id ';
+
+        $where[] = 'pf.feature_id = :feature_id';
 
         if($this->sf_available) {
-            $sql = 'SELECT DISTINCT f.feature_value_id FROM shop_product_features f '.
-                'LEFT JOIN shop_product_skus s ON s.id = f.sku_id '.
-                'WHERE f.product_id IN(:product_ids) AND f.feature_id = :feature_id AND (s.count IS NULL OR  s.count > 0)';
+
+            $where[] = '(sp.count IS NULL OR sp.count > 0)';
         } else {
-            // @todo проверить ситуацию, когда значение присвоено только товару с артикулами, недоступными для заказа.
-            $sql = 'SELECT DISTINCT feature_value_id FROM shop_product_features pf '.
-                'JOIN shop_product_skus sp ON sp.product_id = pf.product_id '.
-                'WHERE pf.product_id IN(:product_ids) AND pf.feature_id = :feature_id AND sp.available = 1';
+            /* @todo проверить ситуацию, когда значение присвоено только товару с артикулами, недоступными для заказа. */
+            $where[] = 'sp.available = 1';
         }
+
+        $sql = "SELECT DISTINCT pf.feature_value_id ".
+            $_sql[0].' '.
+            implode('', $joins) .
+            " WHERE " .
+            $_sql[1].
+            ($where ? ' AND '.implode(' AND ', $where) : '') . " GROUP BY p.id";
+
 
         $res = $this
             ->query($sql, array(
-                'product_ids' => $product_ids,
                 'feature_id' => (int)$this->features[$key]['id']
             ))
             ->fetchAll(null, true);
 
-        $res = array_map('intval', $res);
-
-        return $res;
+        return array_map('intval', $res);
     }
 
     /**

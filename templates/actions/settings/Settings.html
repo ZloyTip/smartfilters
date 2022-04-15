@@ -45,8 +45,18 @@
             </p>
         </div>
     </div>
+    <div class="field" data-enabled="4">
+        <div class="value">
+            <p class="hint" data-enabled="4">
+                <i class="icon16 exclamation-red"></i> Отключает вывод блока фильтров в теме.<br>
+                Получить список фильтров для категории можно сделав запрос к <code>/smartfilters/{ldelim}$category.id{rdelim}/</code>.<br>
+                Для получения отключённых значений характеристик необходимо сделать новый запрос и передать GET-параметры фильтров. Например, <code>/smartfilters/{ldelim}$category.id{rdelim}/?min_price=10&color[]=123</code><br>
+                <em>Документация в разработке.</em>
+            </p>
+        </div>
+    </div>
 
-    <div class="field" data-enabled="1,2,3">{$controls.order}</div>
+    <div class="field" data-enabled="1,2,3,4">{$controls.order}</div>
 
     <div class="field" data-enabled="1,2">{$controls.ui_slider}</div>
 
@@ -68,11 +78,11 @@
         </div>
     </div>
 
-    <div class="field" data-enabled="1,2,3">{$controls.color_change}</div>
-    <div class="field" data-enabled="1,2,3">{$controls.sf_available}</div>
-    <div class="field" data-enabled="1,2,3">{$controls.settings_show_list}</div>
-    <div class="field" data-enabled="1,2,3">{$controls.settings_only_available}</div>
-    <div class="field" data-enabled="1,2,3">{$controls.max_count}</div>
+    <div class="field" data-enabled="1,2,3,4">{$controls.color_change}</div>
+    <div class="field" data-enabled="1,2,3,4">{$controls.sf_available}</div>
+    <div class="field" data-enabled="1,2,3,4">{$controls.settings_show_list}</div>
+    <div class="field" data-enabled="1,2,3,4">{$controls.settings_only_available}</div>
+    <div class="field" data-enabled="1,2,3,4">{$controls.max_count}</div>
 
     <div class="field">
         <div class="value submit">
